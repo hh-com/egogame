@@ -21,8 +21,9 @@ export const useGameStore = defineStore('game', {
     },
     joinRoom(id) {
       this.roomId = id;
-      this.socket = io('http://' + window.location.hostname + ':3000');
-      this.socket.on('connect', () => console.log('Connected to server:', this.socket.id));
+      // Use relative path to avoid Mixed Content (Nginx will proxy this to port 3000)
+      this.socket = io({ path: '/socket.io/' });
+      this.socket.on('connect', () => console.log('Connected to socket:', this.socket.id));
       this.socket.emit('join', { roomId: id, nickname: this.nickname });
       this.socket.on('update', (players) => { 
           this.players = players; 
