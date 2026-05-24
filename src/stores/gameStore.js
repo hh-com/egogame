@@ -9,7 +9,8 @@ export const useGameStore = defineStore('game', {
     nickname: Cookies.get('ego_name') || '',
     roomId: null,
     phase: 'lobby',
-    socket: null
+    socket: null,
+    ready: false
   }),
   actions: {
     setNickname(name) {
@@ -22,6 +23,10 @@ export const useGameStore = defineStore('game', {
       this.socket = io('http://' + window.location.hostname + ':3000');
       this.socket.emit('join', { roomId: id, nickname: this.nickname });
       this.socket.on('start', (data) => { this.phase = data.phase; });
+    },
+    setReady(status) {
+      this.ready = status;
+      this.socket.emit('ready', { roomId: this.roomId, ready: status });
     }
   }
 });
