@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import Cookies from 'js-cookie';
 import { v4 as uuidv4 } from 'uuid';
+import { io } from 'socket.io-client';
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -8,7 +9,7 @@ export const useGameStore = defineStore('game', {
     nickname: Cookies.get('ego_name') || '',
     roomId: null,
     phase: 'lobby',
-    players: []
+    socket: null
   }),
   actions: {
     setNickname(name) {
@@ -18,7 +19,9 @@ export const useGameStore = defineStore('game', {
     },
     joinRoom(id) {
       this.roomId = id;
-      this.phase = 'wait';
+      this.socket = io('http://' + window.location.hostname + ':3000');
+      this.socket.emit('join', { roomId: id, nickname: this.nickname });
+      this.socket.on('start', (data) => { this.phase = data.phase; });
     }
   }
 });
