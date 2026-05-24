@@ -10,7 +10,9 @@ export const useGameStore = defineStore('game', {
     roomId: null,
     phase: 'lobby',
     socket: null,
-    ready: false
+    ready: false,
+    players: [],
+    myBet: 0
   }),
   actions: {
     setNickname(name) {
@@ -22,11 +24,16 @@ export const useGameStore = defineStore('game', {
       this.roomId = id;
       this.socket = io('http://' + window.location.hostname + ':3000');
       this.socket.emit('join', { roomId: id, nickname: this.nickname });
+      this.socket.on('update', (players) => { this.players = players; });
       this.socket.on('start', (data) => { this.phase = data.phase; });
     },
     setReady(status) {
       this.ready = status;
       this.socket.emit('ready', { roomId: this.roomId, ready: status });
+    },
+    setBet(amount) {
+      this.myBet = amount;
+      this.socket.emit('bet', { roomId: this.roomId, amount });
     }
   }
 });
